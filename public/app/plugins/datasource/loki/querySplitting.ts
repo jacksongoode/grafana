@@ -1,14 +1,30 @@
 import { Subscriber, map, Observable } from 'rxjs';
 
-import { DataQueryRequest, DataQueryResponse } from '@grafana/data';
+import { DataQueryRequest, DataQueryResponse, dateTime, TimeRange } from '@grafana/data';
 import { LoadingState } from '@grafana/schema';
 
 import { LokiDatasource } from './datasource';
-import { partitionTimeRange, combineResponses, resultLimitReached } from './queryUtils';
+import { getRanges } from './metricTimeSplit';
+import { combineResponses, resultLimitReached } from './queryUtils';
 import { LokiQuery } from './types';
 
 export function runPartitionedQuery(datasource: LokiDatasource, request: DataQueryRequest<LokiQuery>) {
-  const partition = partitionTimeRange(request.range);
+  // we currently assume we are only running metric queries here.
+  // for logs-queries we will have to use a different time-range-split algorithm.
+  const partition: TimeRange[] = getRanges(
+    request.range.from.toDate().getTime(),
+    request.range.to.toDate().getTime(),
+    request.intervalMs,
+    60 * 1000 // we go with a hardcoded 1minute for now
+  ).map(([start, end]) => {
+    const from = dateTime(start);
+    const to = dateTime(end);
+    return {
+      from,
+      to,
+      raw: { from, to },
+    };
+  });
 
   let mergedResponse: DataQueryResponse | null;
   const totalRequests = partition.length;
