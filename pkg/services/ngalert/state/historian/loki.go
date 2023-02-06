@@ -18,22 +18,6 @@ import (
 	history_model "github.com/grafana/grafana/pkg/services/ngalert/state/historian/model"
 )
 
-const (
-	OrgIDLabel     = "orgID"
-	RuleUIDLabel   = "ruleUID"
-	GroupLabel     = "group"
-	FolderUIDLabel = "folderUID"
-	// Name of the columns used in the dataframe.
-	dfTime   = "time"
-	dfLine   = "line"
-	dfLabels = "labels"
-)
-
-const (
-	StateHistoryLabelKey   = "from"
-	StateHistoryLabelValue = "state-history"
-)
-
 type remoteLokiClient interface {
 	ping(context.Context) error
 	push(context.Context, []stream) error
@@ -91,7 +75,7 @@ func buildSelectors(query models.HistoryQuery) ([]Selector, error) {
 	selectors := make([]Selector, len(query.Labels)+2)
 
 	// Set the predefined selector orgID.
-	selector, err := NewSelector(OrgIDLabel, "=", fmt.Sprintf("%d", query.OrgID))
+	selector, err := NewSelector(LabelOrgID, "=", fmt.Sprintf("%d", query.OrgID))
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +101,7 @@ func buildSelectors(query models.HistoryQuery) ([]Selector, error) {
 
 	// Set the optional special selector rule_id
 	if query.RuleUID != "" {
-		rsel, err := NewSelector(RuleUIDLabel, "=", query.RuleUID)
+		rsel, err := NewSelector(LabelRuleUID, "=", query.RuleUID)
 		if err != nil {
 			return nil, err
 		}
@@ -136,7 +120,7 @@ func merge(res QueryRes, ruleUID string) (*data.Frame, error) {
 	}
 
 	// Create a new slice to store the merged elements.
-	frame := data.NewFrame("states")
+	frame := data.NewFrame(dfStreamTitle)
 
 	// We merge all series into a single linear history.
 	lbls := data.Labels(map[string]string{})
@@ -219,10 +203,10 @@ func statesToStreams(rule history_model.RuleMeta, states []state.StateTransition
 
 		labels := mergeLabels(removePrivateLabels(state.State.Labels), externalLabels)
 		labels[StateHistoryLabelKey] = StateHistoryLabelValue
-		labels[OrgIDLabel] = fmt.Sprint(rule.OrgID)
-		labels[RuleUIDLabel] = fmt.Sprint(rule.UID)
-		labels[GroupLabel] = fmt.Sprint(rule.Group)
-		labels[FolderUIDLabel] = fmt.Sprint(rule.NamespaceUID)
+		labels[LabelOrgID] = fmt.Sprint(rule.OrgID)
+		labels[LabelRuleUID] = fmt.Sprint(rule.UID)
+		labels[LabelGroup] = fmt.Sprint(rule.Group)
+		labels[LabelFolderUID] = fmt.Sprint(rule.NamespaceUID)
 		repr := labels.String()
 
 		entry := lokiEntry{
