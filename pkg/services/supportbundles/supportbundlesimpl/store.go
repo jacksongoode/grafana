@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"sort"
 	"strings"
 	"time"
@@ -36,6 +37,24 @@ type bundleStore interface {
 }
 
 func (s *store) Create(ctx context.Context, usr *user.SignedInUser) (*supportbundles.Bundle, error) {
+	// Maybe have the createBundleCounter here?
+	fmt.Println("pkg/services/supportbundles/supportbundlesimpl/store.go:Create()")
+	// fmt.Println(0)
+	// bb, err := s.Get(ctx, "stats.bundles.count")
+	// if err.Error() == "not found" {
+	// 	fmt.Println(11)
+	// 	// s.set(ctx, "stats.bundles.count")
+	// }
+	// if err != nil {
+	// 	fmt.Println(1)
+	// 	fmt.Println(err)
+	// 	return nil, err
+	// } else {
+	// 	fmt.Println(2)
+	// 	fmt.Println(bb)
+	// }
+	// fmt.Println(3)
+
 	uid, err := uuid.NewRandom()
 	if err != nil {
 		return nil, err
@@ -48,6 +67,8 @@ func (s *store) Create(ctx context.Context, usr *user.SignedInUser) (*supportbun
 		CreatedAt: time.Now().Unix(),
 		ExpiresAt: time.Now().Add(defaultBundleExpiration).Unix(),
 	}
+
+	// update stats.bundles.count
 
 	if err := s.set(ctx, &bundle); err != nil {
 		return nil, err

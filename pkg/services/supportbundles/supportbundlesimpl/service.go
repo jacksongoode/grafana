@@ -68,6 +68,8 @@ func ProvideService(cfg *setting.Cfg,
 		serverAdminOnly: section.Key("server_admin_only").MustBool(true),
 	}
 
+	usageStats.RegisterMetricsFunc(s.getUsageStats)
+
 	if !features.IsEnabled(featuremgmt.FlagSupportBundles) || !s.enabled {
 		return s, nil
 	}
@@ -166,4 +168,14 @@ func (s *Service) cleanup(ctx context.Context) {
 			}
 		}
 	}
+}
+
+// READ the current keyvalue from the service bundle
+func (ss *Service) getUsageStats(ctx context.Context) (map[string]interface{}, error) {
+	println("pkg/services/supportbundles/supportbundlesimpl/service.go:getUsageStats")
+	m := map[string]interface{}{}
+	// INIT
+	// TODO stats.bundles.count++
+	m["stats.bundles.count"] = 0
+	return m, nil
 }

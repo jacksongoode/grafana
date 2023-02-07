@@ -6,6 +6,7 @@ import (
 	"compress/gzip"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"path/filepath"
 	"runtime/debug"
@@ -63,6 +64,23 @@ func (s *Service) startBundleWork(ctx context.Context, collectors []string, uid 
 }
 
 func (s *Service) bundle(ctx context.Context, collectors []string, uid string) ([]byte, error) {
+	fmt.Println("pkg/services/supportbundles/supportbundlesimpl/service_bundle.go:bundle()")
+	// Consider adding the counter number at the beginning so it's included
+	// add +1 to support bundle requested
+	// should the new count be returned as part of the bundle?
+	bb, errr := s.list(ctx)
+	if bb != nil {
+		fmt.Println(bb)
+	}
+	fmt.Println(errr)
+	b, err := s.get(ctx, "stats.bundles.count")
+	if b != nil {
+		fmt.Println(b)
+	}
+	if err.Error() == "not found" {
+		fmt.Println("404")
+	}
+
 	lookup := make(map[string]bool, len(collectors))
 	for _, c := range collectors {
 		lookup[c] = true
