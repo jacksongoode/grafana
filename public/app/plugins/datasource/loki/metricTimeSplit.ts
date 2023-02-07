@@ -36,13 +36,13 @@ export function getRanges(
   startTime: number,
   endTime: number,
   step: number,
-  idealRangeSize: number
+  idealRangeDuration: number
 ): Array<[number, number]> {
-  if (idealRangeSize < 1) {
+  if (idealRangeDuration < 1) {
     throw new Error('idealRangeSize must be at least 1');
   }
   // we must have at least 1 datapoint in the range, even if the idealRangeSize is smaller
-  const pointsInChunk = Math.max(Math.trunc(idealRangeSize / step), 1);
+  const pointsInChunk = Math.max(Math.trunc(idealRangeDuration / step), 1);
 
   // FIXME: we can probably do this whole math-thing with a way
   // where we do not create this potentially-large array,
