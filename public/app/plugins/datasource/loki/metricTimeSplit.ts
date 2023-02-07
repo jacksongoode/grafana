@@ -32,6 +32,8 @@ function getAllPoints(startTime: number, endTime: number, step: number): number[
   return result;
 }
 
+const MAX_CHUNK_COUNT = 50;
+
 export function getRanges(
   startTime: number,
   endTime: number,
@@ -65,6 +67,14 @@ export function getRanges(
   });
 
   ranges.reverse();
+
+  // safety check: if this creates too many items, we just return the whole time-range
+  // as a single chunk.
+
+  if (ranges.length > MAX_CHUNK_COUNT) {
+    // we create a single chunk, from the start of the first-chunk and the end of the last-chunk
+    return [[ranges[0][0], ranges[ranges.length - 1][1]]];
+  }
 
   return ranges;
 }

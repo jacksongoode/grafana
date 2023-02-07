@@ -13,4 +13,13 @@ describe('querySplit', () => {
       [Date.parse('2022-02-06T14:10:50'), Date.parse('2022-02-06T14:11:10')],
     ]);
   });
+
+  it('should return a single range if too many chunks would be generated', () => {
+    const start = Date.parse('2022-02-06T14:10:03');
+    const end = Date.parse('2022-02-06T14:20:03');
+    const step = 10 * 1000;
+    expect(getRanges(start, end, step, 10000)).toStrictEqual([
+      [Date.parse('2022-02-06T14:10:00'), Date.parse('2022-02-06T14:20:10')],
+    ]);
+  });
 });
