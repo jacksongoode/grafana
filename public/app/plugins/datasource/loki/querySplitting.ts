@@ -8,13 +8,13 @@ import { getRanges } from './metricTimeSplit';
 import { combineResponses, resultLimitReached } from './queryUtils';
 import { LokiQuery } from './types';
 
-export function runPartitionedQuery(datasource: LokiDatasource, request: DataQueryRequest<LokiQuery>) {
+function partitionTimeRange(originalTimeRange: TimeRange, intervalMs: number): TimeRange[] {
   // we currently assume we are only running metric queries here.
   // for logs-queries we will have to use a different time-range-split algorithm.
-  const partition: TimeRange[] = getRanges(
-    request.range.from.toDate().getTime(),
-    request.range.to.toDate().getTime(),
-    request.intervalMs,
+  return getRanges(
+    originalTimeRange.from.toDate().getTime(),
+    originalTimeRange.to.toDate().getTime(),
+    intervalMs,
     60 * 1000 // we go with a hardcoded 1minute for now
   ).map(([start, end]) => {
     const from = dateTime(start);
@@ -25,8 +25,11 @@ export function runPartitionedQuery(datasource: LokiDatasource, request: DataQue
       raw: { from, to },
     };
   });
+}
 
+export function runPartitionedQuery(datasource: LokiDatasource, request: DataQueryRequest<LokiQuery>) {
   let mergedResponse: DataQueryResponse | null;
+  const partition = partitionTimeRange(request.range, request.intervalMs);
   const totalRequests = partition.length;
 
   const next = (subscriber: Subscriber<DataQueryResponse>, requestN: number) => {
