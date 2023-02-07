@@ -9,13 +9,15 @@ export interface LoadingBarProps {
 }
 
 const MILLISECONDS_PER_PIXEL = 2.4;
+const MIN_DURATION_MS = 500;
+const MAX_DURATION_MS = 4000;
 
 export function LoadingBar({ width, ariaLabel = 'Loading bar' }: LoadingBarProps) {
   const styles = useStyles2(getStyles);
-  const animationSpeed = Math.min(Math.max(Math.round(width * MILLISECONDS_PER_PIXEL), 500), 4000);
+  const durationMs = Math.min(Math.max(Math.round(width * MILLISECONDS_PER_PIXEL), MIN_DURATION_MS), MAX_DURATION_MS);
   const containerStyles: CSSProperties = {
     width: '100%',
-    animation: `${styles.animation} ${animationSpeed}ms infinite linear`,
+    animation: `${styles.animation} ${durationMs}ms infinite linear`,
     willChange: 'transform',
   };
 
