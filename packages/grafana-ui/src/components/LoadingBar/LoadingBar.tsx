@@ -8,12 +8,11 @@ export interface LoadingBarProps {
   ariaLabel?: string;
 }
 
-const PIXELS_PER_MILLISECOND = 2.1;
+const MILLISECONDS_PER_PIXEL = 2.4;
 
 export function LoadingBar({ width, ariaLabel = 'Loading bar' }: LoadingBarProps) {
   const styles = useStyles2(getStyles);
-  const animationSpeed = Math.min(Math.max(Math.round(width * PIXELS_PER_MILLISECOND), 500), 4000);
-  console.log('animationSpeed', animationSpeed);
+  const animationSpeed = Math.min(Math.max(Math.round(width * MILLISECONDS_PER_PIXEL), 500), 4000);
   const containerStyles: CSSProperties = {
     width: '100%',
     animation: `${styles.animation} ${animationSpeed}ms infinite linear`,
